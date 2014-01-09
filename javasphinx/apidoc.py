@@ -4,6 +4,7 @@
 import cPickle as pickle
 
 import logging
+import re
 import sys
 import os
 import os.path
@@ -201,20 +202,12 @@ def generate_documents(source_files, cache_dir, verbose):
 
     return packages, documents, sources
 
-def normalize_excludes(rootpath, excludes):
-    f_excludes = []
-    for exclude in excludes:
-        if not os.path.isabs(exclude) and not exclude.startswith(rootpath):
-            exclude = os.path.join(rootpath, exclude)
-        f_excludes.append(os.path.normpath(exclude) + os.path.sep)
-    return f_excludes
-
 def is_excluded(root, excludes):
     sep = os.path.sep
     if not root.endswith(sep):
         root += sep
     for exclude in excludes:
-        if root.startswith(exclude):
+        if re.search(exclude, root) != None:
             return True
     return False
 
@@ -279,7 +272,6 @@ Note: By default this script will not overwrite already created files.""")
     if opts.cache_dir and not os.path.isdir(opts.cache_dir):
         os.makedirs(opts.cache_dir)
 
-    excludes = normalize_excludes(rootpath, excludes)
     source_files = []
 
     for input_path in input_paths:
