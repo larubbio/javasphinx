@@ -7,7 +7,7 @@ from sphinx.util.nodes import split_explicit_title
 def get_javadoc_ref(app, rawtext, text):
     javadoc_url_map = app.config.javadoc_url_map
 
-    # Add default sources
+    # Add default Java SE sources
     if not javadoc_url_map.get("java"):
         javadoc_url_map["java"] = ("http://docs.oracle.com/javase/6/docs/api", 'javadoc')
     if not javadoc_url_map.get("javax"):
@@ -35,6 +35,7 @@ def get_javadoc_ref(app, rawtext, text):
     for pkg, (baseurl, ext_type) in javadoc_url_map.items():
         if text.startswith(pkg + '.') and len(pkg) > len(package):
             source = baseurl, ext_type
+            package = pkg
 
     if not source:
         return None
@@ -57,10 +58,14 @@ def get_javadoc_ref(app, rawtext, text):
         baseurl = baseurl + '/'
 
     if ext_type == 'javadoc':
+        if not cls:
+            cls = 'package-summary'
         source = baseurl + package.replace('.', '/') + '/' + cls + '.html'
         if method:
             source = source + '#' + method
     elif ext_type == 'sphinx':
+        if not cls:
+            cls = 'package-index'
         source = baseurl + package.replace('.', '/') + '/' + cls.replace('.', '-') + '.html'
         if method:
             source = source + '#' + package + '.' + cls + '.' + method
