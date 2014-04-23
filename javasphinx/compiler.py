@@ -256,7 +256,6 @@ class JavadocRestCompiler(object):
         returned documenting each separate type. """
 
         documents = {}
-        classes = []
 
         imports = util.StringBuilder()
         for imp in ast.imports:
@@ -274,16 +273,8 @@ class JavadocRestCompiler(object):
 
             package = '.'.join(package_parts)
             cls = '.'.join(cls_parts)
-            classes.append(cls)
 
             imports.append(util.Directive('java:import', package + ' ' + cls).build())
-
-        # I'm making an assumption that any ReferenceType we come across that wasn't
-        # explicitly imported is from java.lang
-        for path, node in ast.filter(javalang.tree.ReferenceType):
-            if not node.name in classes:
-                imports.append(util.Directive('java:import', 'java.lang ' + node.name).build())     
-                classes.append(node.name)
 
         import_block = imports.build()
 
